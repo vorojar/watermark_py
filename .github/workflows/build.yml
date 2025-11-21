@@ -2,7 +2,7 @@ name: Build for Mac and Windows
 
 on:
   push:
-    branches: [ "main" ] # 当推送到 main 分支时触发
+    branches: [ "main" ]
 
 jobs:
   build:
@@ -10,15 +10,16 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [windows-latest, macos-latest] # 这里指定了两个平台
+        os: [windows-latest, macos-latest]
 
     steps:
-    - uses: actions/checkout@v3
+    - name: Checkout code
+      uses: actions/checkout@v4  # 已更新为 v4
 
     - name: Set up Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5 # 已更新为 v5
       with:
-        python-version: '1.0' # 指定你的 Python 版本
+        python-version: '3.9' 
 
     - name: Install Dependencies
       run: |
@@ -27,11 +28,12 @@ jobs:
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
     - name: Build with PyInstaller
-      # 这里把 main.py 换成你的入口文件名
+      # 注意：如果你想给程序加图标，可以在这里加 --icon=logo.ico 参数
       run: pyinstaller -F -w -n MyApp watermark_gui.py
 
     - name: Upload Artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4  # 关键修改：这里改成了 v4
       with:
         name: MyApp-${{ matrix.os }}
         path: dist/
+        # v4 默认行为更严格，如果同名文件存在会报错，但因为咱们用了 matrix.os 做文件名区分，所以这里是安全的
